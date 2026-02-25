@@ -50,7 +50,7 @@ export interface PatientData {
   id: string;
   name: string;
   birthDate: string;
-  gender: "male" | "female" | "other";
+  gender: "male" | "female";
   phone: string;
   /** clinic name → chart number for that clinic */
   chartNumbers: Record<string, string>;
@@ -74,3 +74,6 @@ export interface DentalRecord {
 
 export type ViewMode = "chart" | "perio" | "history";
 export type ConditionTool = ToothCondition | "select" | "eraser";
+
+export type PanelId = "explorer" | "chart" | "command" | "ai";
+export type PanelTheme = "light" | "dark";

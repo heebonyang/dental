@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { v4 as uuid } from "uuid";
-import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool } from "./types";
+import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool, PanelId, PanelTheme } from "./types";
 import { buildTeethRecord } from "./utils";
 
 export function newRecord(): DentalRecord {
   return {
-    patient: { id: uuid(), name: "", birthDate: "", gender: "other", phone: "", chartNumbers: {}, clinic: "" },
+    patient: { id: uuid(), name: "", birthDate: "", gender: "male", phone: "", chartNumbers: {}, clinic: "" },
     teeth: buildTeethRecord(),
     notes: [],
     updatedAt: new Date().toISOString(),
@@ -22,6 +22,7 @@ interface StoreState {
   records: DentalRecord[];
   activeRecordId: string;
   clinics: string[];
+  panelThemes: Record<PanelId, PanelTheme>;
   // Patient management
   addRecord: () => void;
   setActiveRecord: (id: string) => void;
@@ -39,6 +40,8 @@ interface StoreState {
   // Clinics
   addClinic: (name: string) => void;
   deleteClinic: (name: string) => void;
+  // Theme
+  togglePanelTheme: (panel: PanelId) => void;
 }
 
 function patchActive(
@@ -66,6 +69,7 @@ export const useDentalStore = create<StoreState>()(
         records: [initial],
         activeRecordId: initial.patient.id,
         clinics: [],
+        panelThemes: { explorer: "dark", chart: "light", command: "dark", ai: "dark" },
 
         addRecord: () => {
           const r = newRecord();
@@ -143,11 +147,19 @@ export const useDentalStore = create<StoreState>()(
 
         deleteClinic: (name) =>
           set((s) => ({ clinics: s.clinics.filter((c) => c !== name) })),
+
+        togglePanelTheme: (panel) =>
+          set((s) => ({
+            panelThemes: {
+              ...s.panelThemes,
+              [panel]: s.panelThemes[panel] === "dark" ? "light" : "dark",
+            },
+          })),
       }),
       {
         name: "dental-record",
-        version: 3,
-        partialize: (s) => ({ records: s.records, activeRecordId: s.activeRecordId, clinics: s.clinics }),
+        version: 4,
+        partialize: (s) => ({ records: s.records, activeRecordId: s.activeRecordId, clinics: s.clinics, panelThemes: s.panelThemes }),
         migrate: (persisted: unknown, version: number) => {
           const data = persisted as Record<string, unknown>;
           if (version < 2) {
@@ -171,6 +183,17 @@ export const useDentalStore = create<StoreState>()(
               data.records = [rec];
               data.activeRecordId = rec.patient.id;
               delete data.record;
+            }
+          }
+          if (version < 4) {
+            const recs = data.records as DentalRecord[] | undefined;
+            if (recs) {
+              recs.forEach((r) => {
+                if ((r.patient.gender as string) === "other") r.patient.gender = "male";
+              });
+            }
+            if (!data.panelThemes) {
+              data.panelThemes = { explorer: "dark", chart: "light", command: "dark", ai: "dark" };
             }
           }
           return data;
