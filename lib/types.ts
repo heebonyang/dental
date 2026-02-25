@@ -77,3 +77,15 @@ export type ConditionTool = ToothCondition | "select" | "eraser";
 
 export type PanelId = "explorer" | "chart" | "command" | "ai";
 export type PanelTheme = "light" | "dark";
+
+/** 치아 상태 하나에 대한 표시 메타데이터 */
+export interface ConditionMeta {
+  /** 한국어 레이블 (예: "충치") */
+  label: string;
+  /** Tailwind 배경색 클래스 (예: "bg-red-100") */
+  color: string;
+  /** 도트 색상 hex 값 */
+  dotColor: string;
+  /** 차트 셀에 표시할 아이콘 문자 */
+  icon: string;
+}

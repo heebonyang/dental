@@ -1,4 +1,4 @@
-import type { ToothData, ToothCondition, UniversalNumber, ConditionTool } from "./types";
+import type { ToothData, ToothCondition, UniversalNumber, ConditionTool, ConditionMeta } from "./types";
 
 type StaticToothDef = Omit<ToothData, "status" | "note">;
 
@@ -40,13 +40,6 @@ export const TOOTH_DEFINITIONS: StaticToothDef[] = [
   { id: 31, fdi: "47", name: "하악 우측 제2대구치",    quadrant: 4, arch: "lower", side: "right", type: "molar"    },
   { id: 32, fdi: "48", name: "하악 우측 사랑니",       quadrant: 4, arch: "lower", side: "right", type: "molar"    },
 ];
-
-export interface ConditionMeta {
-  label: string;
-  color: string;
-  dotColor: string;
-  icon: string;
-}
 
 export const CONDITION_META: Record<ToothCondition, ConditionMeta> = {
   healthy:               { label: "정상",            color: "bg-emerald-50",  dotColor: "#6ee7b7", icon: "✓"   },

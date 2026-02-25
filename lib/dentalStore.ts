@@ -57,7 +57,7 @@ function patchActive(
   };
 }
 
-const initial = newRecord();
+const initialRecord = newRecord();
 
 export const useDentalStore = create<StoreState>()(
   subscribeWithSelector(
@@ -66,8 +66,8 @@ export const useDentalStore = create<StoreState>()(
         selectedTooth: null,
         activeTool: "select",
         viewMode: "chart",
-        records: [initial],
-        activeRecordId: initial.patient.id,
+        records: [initialRecord],
+        activeRecordId: initialRecord.patient.id,
         clinics: [],
         panelThemes: { explorer: "dark", chart: "light", command: "dark", ai: "dark" },
 
