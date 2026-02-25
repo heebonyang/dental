@@ -49,8 +49,7 @@ export default function CommandCenter() {
 
   return (
     <div
-      className={`flex flex-col border-t shrink-0 ${isDark ? "bg-gray-950 border-gray-800" : "bg-white border-gray-200"}`}
-      style={{ height: "220px" }}
+      className={`flex flex-col border-t h-full ${isDark ? "bg-gray-950 border-gray-800" : "bg-white border-gray-200"}`}
     >
       {/* 헤더 (font-mono 스타일 때문에 PanelHeader 미사용) */}
       <div className={`px-4 py-1.5 border-b flex items-center justify-between shrink-0 ${isDark ? "border-gray-800" : "border-gray-200"}`}>

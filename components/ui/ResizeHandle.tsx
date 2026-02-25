@@ -1,28 +1,31 @@
 "use client";
 
 interface ResizeHandleProps {
-  /** 마우스 드래그 중 발생하는 incremental X 이동량(px)을 전달합니다. */
-  onDelta: (deltaX: number) => void;
+  /** 드래그 중 발생하는 incremental 이동량(px)을 전달합니다. */
+  onDelta: (delta: number) => void;
+  /** "horizontal": 좌우 패널 경계 (기본값) | "vertical": 상하 패널 경계 */
+  direction?: "horizontal" | "vertical";
 }
 
 /**
  * 패널 사이에 놓는 드래그 핸들.
- * - 마우스다운 → 문서 전체에서 mousemove 추적 → 마우스업 시 정리
- * - 드래그 중 텍스트 선택 및 커서 변경을 방지합니다.
+ * direction에 따라 수평(col-resize) / 수직(row-resize) 으로 동작합니다.
  */
-export default function ResizeHandle({ onDelta }: ResizeHandleProps) {
+export default function ResizeHandle({ onDelta, direction = "horizontal" }: ResizeHandleProps) {
+  const isHorizontal = direction === "horizontal";
+
   function handleMouseDown(e: React.MouseEvent) {
     e.preventDefault();
 
-    let lastX = e.clientX;
+    let lastPos = isHorizontal ? e.clientX : e.clientY;
 
-    // 드래그 중 커서·텍스트선택 고정
-    document.body.style.cursor = "col-resize";
+    document.body.style.cursor = isHorizontal ? "col-resize" : "row-resize";
     document.body.style.userSelect = "none";
 
     function onMouseMove(e: MouseEvent) {
-      const delta = e.clientX - lastX;
-      lastX = e.clientX;
+      const currentPos = isHorizontal ? e.clientX : e.clientY;
+      const delta = currentPos - lastPos;
+      lastPos = currentPos;
       onDelta(delta);
     }
 
@@ -41,7 +44,11 @@ export default function ResizeHandle({ onDelta }: ResizeHandleProps) {
     <div
       onMouseDown={handleMouseDown}
       title="드래그하여 크기 조정"
-      className="w-1 shrink-0 bg-gray-700 hover:bg-blue-500 active:bg-blue-400 cursor-col-resize transition-colors duration-150"
+      className={`shrink-0 bg-gray-700 hover:bg-blue-500 active:bg-blue-400 transition-colors duration-150 ${
+        isHorizontal
+          ? "w-1 cursor-col-resize"
+          : "h-1 cursor-row-resize"
+      }`}
     />
   );
 }
