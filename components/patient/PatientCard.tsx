@@ -49,51 +49,51 @@ export default function PatientCard() {
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <h2 className="font-semibold text-gray-800">Patient</h2>
+        <h2 className="font-semibold text-gray-800">환자 정보</h2>
         {editing ? (
           <div className="flex gap-2">
-            <button onClick={save} className="text-xs text-blue-500 hover:underline">Save</button>
-            <button onClick={cancel} className="text-xs text-gray-400 hover:underline">Cancel</button>
+            <button onClick={save} className="text-xs text-blue-500 hover:underline">저장</button>
+            <button onClick={cancel} className="text-xs text-gray-400 hover:underline">취소</button>
           </div>
         ) : (
-          <button onClick={startEdit} className="text-xs text-blue-500 hover:underline">Edit</button>
+          <button onClick={startEdit} className="text-xs text-blue-500 hover:underline">수정</button>
         )}
       </div>
 
       {/* Table — identical structure in both modes */}
       <table className="w-full text-sm">
         <tbody>
-          <Row label="Name">
+          <Row label="이름">
             {editing
               ? <input value={draft.name} onChange={(e) => setField("name", e.target.value)} className={FIELD_CLS} />
               : <span>{d.name || "—"}</span>}
           </Row>
 
-          <Row label="Birth">
+          <Row label="생년월일">
             {editing
               ? <input type="date" value={draft.birthDate} onChange={(e) => setField("birthDate", e.target.value)} className={FIELD_CLS} />
               : <span>{d.birthDate || "—"}</span>}
           </Row>
 
-          <Row label="Gender">
+          <Row label="성별">
             {editing
               ? (
                 <select value={draft.gender} onChange={(e) => setField("gender", e.target.value as PatientData["gender"])} className={FIELD_CLS}>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
+                  <option value="male">남성</option>
+                  <option value="female">여성</option>
+                  <option value="other">기타</option>
                 </select>
               )
-              : <span className="capitalize">{d.gender}</span>}
+              : <span>{d.gender === "male" ? "남성" : d.gender === "female" ? "여성" : "기타"}</span>}
           </Row>
 
-          <Row label="Phone">
+          <Row label="연락처">
             {editing
               ? <input value={draft.phone} onChange={(e) => setField("phone", e.target.value)} className={FIELD_CLS} />
               : <span>{d.phone || "—"}</span>}
           </Row>
 
-          <Row label="Clinic">
+          <Row label="병원">
             {editing
               ? (
                 <div className="space-y-1">
@@ -106,24 +106,24 @@ export default function PatientCard() {
                       value={newClinic}
                       onChange={(e) => setNewClinic(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleAddClinic()}
-                      placeholder="+ new clinic"
+                      placeholder="+ 새 병원 추가"
                       className="flex-1 text-xs border border-dashed border-gray-300 rounded px-2 py-0.5 placeholder-gray-300"
                     />
-                    <button onClick={handleAddClinic} className="text-xs text-blue-500 px-1 shrink-0">Add</button>
+                    <button onClick={handleAddClinic} className="text-xs text-blue-500 px-1 shrink-0">추가</button>
                   </div>
                 </div>
               )
               : <span>{d.clinic || "—"}</span>}
           </Row>
 
-          <Row label="Chart #">
+          <Row label="차트번호">
             {editing
               ? (
                 <input
                   value={displayChartNum(draft)}
                   onChange={(e) => draft.clinic && setChartNumber(draft.clinic, e.target.value)}
                   disabled={!draft.clinic}
-                  placeholder={draft.clinic ? "" : "클리닉 먼저 선택"}
+                  placeholder={draft.clinic ? "" : "병원을 먼저 선택하세요"}
                   className={FIELD_CLS + " disabled:bg-gray-50 disabled:text-gray-400 disabled:placeholder-gray-300"}
                 />
               )

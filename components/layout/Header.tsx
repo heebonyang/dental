@@ -7,10 +7,10 @@ export default function Header() {
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-      <div className="font-semibold text-gray-800">Dental Chart</div>
-      <div className="text-sm text-gray-500">{patient.name || "No patient"}</div>
+      <div className="font-semibold text-gray-800">치과 차트</div>
+      <div className="text-sm text-gray-500">{patient.name || "환자 없음"}</div>
       <button onClick={resetChart} className="text-sm text-red-500 hover:underline">
-        Reset
+        초기화
       </button>
     </header>
   );

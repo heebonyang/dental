@@ -16,20 +16,20 @@ export default function ClinicalNotes() {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-      <h3 className="font-semibold text-gray-800">Notes</h3>
+      <h3 className="font-semibold text-gray-800">진료 기록</h3>
       <div className="flex gap-2">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-          placeholder="Add clinical note..."
+          placeholder="진료 내용을 입력하세요..."
           className="flex-1 text-sm border border-gray-200 rounded px-2 py-1"
         />
         <button
           onClick={handleAdd}
           className="px-3 py-1 bg-blue-500 text-white text-sm rounded"
         >
-          Add
+          추가
         </button>
       </div>
       <ul className="space-y-2">

@@ -21,9 +21,9 @@ export default function ChartLegend() {
           )}
         >
           {tool === "select"
-            ? "↖ Select"
+            ? "↖ 선택"
             : tool === "eraser"
-            ? "⌫ Erase"
+            ? "⌫ 지우개"
             : `${CONDITION_META[tool]?.icon} ${CONDITION_META[tool]?.label}`}
         </button>
       ))}
