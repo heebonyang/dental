@@ -21,9 +21,10 @@ const COMMAND_MAX = 520;
 export default function Home() {
   const { isDark: isChartDark, toggle: toggleChartTheme } = usePanelTheme("chart");
 
-  const [leftWidth,     setLeftWidth]     = useState(220);
-  const [rightWidth,    setRightWidth]    = useState(280);
-  const [commandHeight, setCommandHeight] = useState(220);
+  const [isLayoutEditMode, setIsLayoutEditMode] = useState(false);
+  const [leftWidth,        setLeftWidth]        = useState(220);
+  const [rightWidth,       setRightWidth]       = useState(280);
+  const [commandHeight,    setCommandHeight]    = useState(220);
 
   function handleLeftResize(delta: number) {
     setLeftWidth((prev) => Math.max(LEFT_MIN, Math.min(LEFT_MAX, prev + delta)));
@@ -41,7 +42,10 @@ export default function Home() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-gray-950">
-      <Header />
+      <Header
+        isLayoutEditMode={isLayoutEditMode}
+        onToggleLayoutEdit={() => setIsLayoutEditMode((prev) => !prev)}
+      />
 
       {/* 4분할 대시보드 — flex 레이아웃으로 드래그 리사이즈 */}
       <div className="flex-1 flex overflow-hidden">
@@ -55,7 +59,7 @@ export default function Home() {
         </div>
 
         {/* 좌측 ↔ 중앙 드래그 핸들 */}
-        <ResizeHandle onDelta={handleLeftResize} />
+        <ResizeHandle isEnabled={isLayoutEditMode} onDelta={handleLeftResize} />
 
         {/* ② + ③ 중앙: 차팅 뷰 (상단) + 커맨드 센터 (하단) */}
         <div className={`flex flex-col overflow-hidden flex-1 min-w-0 ${isChartDark ? "bg-gray-900" : "bg-gray-100"}`}>
@@ -67,14 +71,14 @@ export default function Home() {
             <ToothDetailPanel />
           </div>
           {/* 차팅 뷰 ↔ 커맨드 센터 수직 드래그 핸들 */}
-          <ResizeHandle direction="vertical" onDelta={handleCommandResize} />
+          <ResizeHandle direction="vertical" isEnabled={isLayoutEditMode} onDelta={handleCommandResize} />
           <div className="shrink-0" style={{ height: commandHeight }}>
             <CommandCenter />
           </div>
         </div>
 
         {/* 중앙 ↔ 우측 드래그 핸들 */}
-        <ResizeHandle onDelta={handleRightResize} />
+        <ResizeHandle isEnabled={isLayoutEditMode} onDelta={handleRightResize} />
 
         {/* ④ 우측: AI 어시스트 패널 */}
         <div
