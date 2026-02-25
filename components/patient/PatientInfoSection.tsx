@@ -101,9 +101,10 @@ export default function PatientInfoSection({
             </FormRow>
             <FormRow label="생년월일">
               <input
-                type="date"
+                type="text"
                 value={draftPatient.birthDate}
                 onChange={(e) => updateField("birthDate", e.target.value)}
+                placeholder="예: 1990-01-01"
                 className={INPUT_CLASS}
               />
             </FormRow>
