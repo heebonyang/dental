@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #f8fafc;
+    --bg-panel: #ffffff;
+    --border: #e2e8f0;
+  }
+
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  * {
+    @apply border-slate-200;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+  }
+
+  .panel-header {
+    @apply flex items-center justify-between px-4 py-3 border-b border-slate-100;
+  }
+
+  .panel-title {
+    @apply text-sm font-semibold text-slate-700 uppercase tracking-wide;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-3 py-1.5 bg-clinical-600 text-white text-sm font-medium rounded-lg
+           hover:bg-clinical-700 active:bg-clinical-700 transition-colors duration-150;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 text-slate-600 text-sm font-medium rounded-lg
+           hover:bg-slate-100 transition-colors duration-150;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .tooth-cell {
+    @apply relative flex flex-col items-center justify-center rounded-lg border-2 cursor-pointer
+           transition-all duration-150 select-none;
+  }
+
+  .tooth-cell:hover {
+    @apply scale-105 shadow-md z-10;
+  }
+
+  .tooth-cell.selected {
+    @apply ring-2 ring-clinical-500 ring-offset-1 scale-105 shadow-lg z-20;
+  }
+
+  .surface-btn {
+    @apply flex items-center justify-center rounded text-xs font-bold
+           border transition-colors duration-100 cursor-pointer select-none;
+  }
+
+  .surface-btn:hover {
+    @apply opacity-80;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
