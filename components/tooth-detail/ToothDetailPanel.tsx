@@ -1,12 +1,13 @@
 "use client";
-import { useDentalStore } from "@/lib/dentalStore";
+import { useDentalStore, useActiveRecord } from "@/lib/dentalStore";
 import { CONDITION_META } from "@/lib/constants";
 
 export default function ToothDetailPanel() {
-  const tooth = useDentalStore((s) =>
-    s.selectedTooth ? s.record.teeth[s.selectedTooth] : null
-  );
+  const record         = useActiveRecord();
+  const selectedTooth  = useDentalStore((s) => s.selectedTooth);
   const updateToothNote = useDentalStore((s) => s.updateToothNote);
+
+  const tooth = selectedTooth ? record.teeth[selectedTooth] : null;
 
   if (!tooth) {
     return (

@@ -1,13 +1,13 @@
 "use client";
-import { useDentalStore } from "@/lib/dentalStore";
+import { useDentalStore, useActiveRecord } from "@/lib/dentalStore";
 import { UPPER_ARCH_ORDER, LOWER_ARCH_ORDER } from "@/lib/constants";
 import ToothCell from "./ToothCell";
 
 export default function ToothDiagram() {
-  const teeth = useDentalStore((s) => s.record.teeth);
+  const record       = useActiveRecord();
   const selectedTooth = useDentalStore((s) => s.selectedTooth);
-  const activeTool = useDentalStore((s) => s.activeTool);
-  const selectTooth = useDentalStore((s) => s.selectTooth);
+  const activeTool   = useDentalStore((s) => s.activeTool);
+  const selectTooth  = useDentalStore((s) => s.selectTooth);
   const setToothStatus = useDentalStore((s) => s.setToothStatus);
 
   function handleClick(id: number) {
@@ -26,7 +26,7 @@ export default function ToothDiagram() {
         {UPPER_ARCH_ORDER.map((id) => (
           <ToothCell
             key={id}
-            tooth={teeth[id]}
+            tooth={record.teeth[id]}
             isSelected={selectedTooth === id}
             onClick={() => handleClick(id)}
           />
@@ -37,7 +37,7 @@ export default function ToothDiagram() {
         {LOWER_ARCH_ORDER.map((id) => (
           <ToothCell
             key={id}
-            tooth={teeth[id]}
+            tooth={record.teeth[id]}
             isSelected={selectedTooth === id}
             onClick={() => handleClick(id)}
           />

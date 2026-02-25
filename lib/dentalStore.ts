@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool } from "./types";
 import { buildTeethRecord } from "./utils";
 
-function defaultRecord(): DentalRecord {
+export function newRecord(): DentalRecord {
   return {
     patient: { id: uuid(), name: "", birthDate: "", gender: "other", phone: "", chartNumbers: {}, clinic: "" },
     teeth: buildTeethRecord(),
@@ -18,23 +18,43 @@ interface StoreState {
   selectedTooth: number | null;
   activeTool: ConditionTool;
   viewMode: ViewMode;
-  // Record (persisted)
-  record: DentalRecord;
-  // Clinic registry (persisted, shared across patients)
+  // Data (persisted)
+  records: DentalRecord[];
+  activeRecordId: string;
   clinics: string[];
-  // Actions
+  // Patient management
+  addRecord: () => void;
+  setActiveRecord: (id: string) => void;
+  deleteRecord: (id: string) => void;
+  // Chart actions
   selectTooth: (id: number | null) => void;
   setActiveTool: (tool: ConditionTool) => void;
   setViewMode: (mode: ViewMode) => void;
-  setToothStatus: (id: number, condition: ToothCondition) => void;
-  updateToothNote: (id: number, note: string) => void;
+  setToothStatus: (toothId: number, condition: ToothCondition) => void;
+  updateToothNote: (toothId: number, note: string) => void;
   updatePatient: (patch: Partial<PatientData>) => void;
-  addClinic: (name: string) => void;
-  deleteClinic: (name: string) => void;
   addNote: (content: string) => void;
   deleteNote: (id: string) => void;
   resetChart: () => void;
+  // Clinics
+  addClinic: (name: string) => void;
+  deleteClinic: (name: string) => void;
 }
+
+function patchActive(
+  s: Pick<StoreState, "records" | "activeRecordId">,
+  updater: (r: DentalRecord) => DentalRecord
+): { records: DentalRecord[] } {
+  return {
+    records: s.records.map((r) =>
+      r.patient.id === s.activeRecordId
+        ? updater({ ...r, updatedAt: new Date().toISOString() })
+        : r
+    ),
+  };
+}
+
+const initial = newRecord();
 
 export const useDentalStore = create<StoreState>()(
   subscribeWithSelector(
@@ -43,55 +63,59 @@ export const useDentalStore = create<StoreState>()(
         selectedTooth: null,
         activeTool: "select",
         viewMode: "chart",
-        record: defaultRecord(),
+        records: [initial],
+        activeRecordId: initial.patient.id,
         clinics: [],
+
+        addRecord: () => {
+          const r = newRecord();
+          set((s) => ({ records: [...s.records, r], activeRecordId: r.patient.id, selectedTooth: null }));
+        },
+
+        setActiveRecord: (id) => set({ activeRecordId: id, selectedTooth: null }),
+
+        deleteRecord: (id) =>
+          set((s) => {
+            const remaining = s.records.filter((r) => r.patient.id !== id);
+            if (remaining.length === 0) {
+              const r = newRecord();
+              return { records: [r], activeRecordId: r.patient.id };
+            }
+            const newActive = s.activeRecordId === id ? remaining[0].patient.id : s.activeRecordId;
+            return { records: remaining, activeRecordId: newActive };
+          }),
 
         selectTooth: (id) => set({ selectedTooth: id }),
         setActiveTool: (tool) => set({ activeTool: tool }),
         setViewMode: (mode) => set({ viewMode: mode }),
 
-        setToothStatus: (id, condition) =>
-          set((s) => ({
-            record: {
-              ...s.record,
-              updatedAt: new Date().toISOString(),
-              teeth: { ...s.record.teeth, [id]: { ...s.record.teeth[id], status: condition } },
-            },
-          })),
+        setToothStatus: (toothId, condition) =>
+          set((s) =>
+            patchActive(s, (r) => ({
+              ...r,
+              teeth: { ...r.teeth, [toothId]: { ...r.teeth[toothId], status: condition } },
+            }))
+          ),
 
-        updateToothNote: (id, note) =>
-          set((s) => ({
-            record: {
-              ...s.record,
-              updatedAt: new Date().toISOString(),
-              teeth: { ...s.record.teeth, [id]: { ...s.record.teeth[id], note } },
-            },
-          })),
+        updateToothNote: (toothId, note) =>
+          set((s) =>
+            patchActive(s, (r) => ({
+              ...r,
+              teeth: { ...r.teeth, [toothId]: { ...r.teeth[toothId], note } },
+            }))
+          ),
 
         updatePatient: (patch) =>
-          set((s) => ({
-            record: {
-              ...s.record,
-              updatedAt: new Date().toISOString(),
-              patient: { ...s.record.patient, ...patch },
-            },
-          })),
-
-        addClinic: (name) =>
-          set((s) => ({
-            clinics: s.clinics.includes(name) ? s.clinics : [...s.clinics, name],
-          })),
-
-        deleteClinic: (name) =>
-          set((s) => ({ clinics: s.clinics.filter((c) => c !== name) })),
+          set((s) =>
+            patchActive(s, (r) => ({ ...r, patient: { ...r.patient, ...patch } }))
+          ),
 
         addNote: (content) =>
-          set((s) => ({
-            record: {
-              ...s.record,
-              updatedAt: new Date().toISOString(),
+          set((s) =>
+            patchActive(s, (r) => ({
+              ...r,
               notes: [
-                ...s.record.notes,
+                ...r.notes,
                 {
                   id: uuid(),
                   date: new Date().toISOString(),
@@ -100,41 +124,53 @@ export const useDentalStore = create<StoreState>()(
                   linkedToothIds: s.selectedTooth ? [s.selectedTooth] : [],
                 },
               ],
-            },
-          })),
+            }))
+          ),
 
         deleteNote: (id) =>
+          set((s) =>
+            patchActive(s, (r) => ({ ...r, notes: r.notes.filter((n) => n.id !== id) }))
+          ),
+
+        resetChart: () =>
           set((s) => ({
-            record: {
-              ...s.record,
-              updatedAt: new Date().toISOString(),
-              notes: s.record.notes.filter((n) => n.id !== id),
-            },
+            ...patchActive(s, (r) => ({ ...r, teeth: buildTeethRecord(), notes: [] })),
+            selectedTooth: null,
           })),
 
-        resetChart: () => set({ record: defaultRecord(), selectedTooth: null }),
+        addClinic: (name) =>
+          set((s) => ({ clinics: s.clinics.includes(name) ? s.clinics : [...s.clinics, name] })),
+
+        deleteClinic: (name) =>
+          set((s) => ({ clinics: s.clinics.filter((c) => c !== name) })),
       }),
       {
         name: "dental-record",
-        version: 2,
-        partialize: (s) => ({ record: s.record, clinics: s.clinics }),
+        version: 3,
+        partialize: (s) => ({ records: s.records, activeRecordId: s.activeRecordId, clinics: s.clinics }),
         migrate: (persisted: unknown, version: number) => {
           const data = persisted as Record<string, unknown>;
-          // v0→v2: chartNumber(string) → chartNumbers(Record)
           if (version < 2) {
             const record = data.record as Record<string, unknown> | undefined;
             if (record) {
               const patient = record.patient as Record<string, unknown> | undefined;
-              if (patient && typeof patient.chartNumber === "string") {
-                const clinic = (patient.clinic as string) ?? "";
-                patient.chartNumbers = clinic && patient.chartNumber
-                  ? { [clinic]: patient.chartNumber }
-                  : {};
-                delete patient.chartNumber;
+              if (patient) {
+                if (typeof patient.chartNumber === "string") {
+                  const clinic = (patient.clinic as string) ?? "";
+                  patient.chartNumbers = clinic && patient.chartNumber ? { [clinic]: patient.chartNumber } : {};
+                  delete patient.chartNumber;
+                }
+                if (!patient.chartNumbers) patient.chartNumbers = {};
               }
-              if (patient && !patient.chartNumbers) {
-                patient.chartNumbers = {};
-              }
+            }
+          }
+          if (version < 3) {
+            if (data.record && !data.records) {
+              const rec = data.record as DentalRecord;
+              if (!rec.patient.chartNumbers) rec.patient.chartNumbers = {};
+              data.records = [rec];
+              data.activeRecordId = rec.patient.id;
+              delete data.record;
             }
           }
           return data;
@@ -143,3 +179,8 @@ export const useDentalStore = create<StoreState>()(
     )
   )
 );
+
+export const useActiveRecord = (): DentalRecord =>
+  useDentalStore(
+    (s) => s.records.find((r) => r.patient.id === s.activeRecordId) ?? s.records[0]
+  );
