@@ -116,7 +116,29 @@ export const useDentalStore = create<StoreState>()(
       }),
       {
         name: "dental-record",
+        version: 2,
         partialize: (s) => ({ record: s.record, clinics: s.clinics }),
+        migrate: (persisted: unknown, version: number) => {
+          const data = persisted as Record<string, unknown>;
+          // v0→v2: chartNumber(string) → chartNumbers(Record)
+          if (version < 2) {
+            const record = data.record as Record<string, unknown> | undefined;
+            if (record) {
+              const patient = record.patient as Record<string, unknown> | undefined;
+              if (patient && typeof patient.chartNumber === "string") {
+                const clinic = (patient.clinic as string) ?? "";
+                patient.chartNumbers = clinic && patient.chartNumber
+                  ? { [clinic]: patient.chartNumber }
+                  : {};
+                delete patient.chartNumber;
+              }
+              if (patient && !patient.chartNumbers) {
+                patient.chartNumbers = {};
+              }
+            }
+          }
+          return data;
+        },
       }
     )
   )
