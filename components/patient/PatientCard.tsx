@@ -1,130 +1,160 @@
 "use client";
+import { useState } from "react";
 import { useDentalStore } from "@/lib/dentalStore";
-import { calcAge, fmtDate, countByCondition } from "@/lib/utils";
-import { CONDITION_META } from "@/lib/constants";
-import { Badge } from "@/components/ui/Badge";
-import { User, Phone, Mail, Calendar, AlertTriangle, Pill, ClipboardList } from "lucide-react";
+import type { PatientData } from "@/lib/types";
 
-export function PatientCard() {
+const FIELD_CLS = "w-full text-sm border border-gray-200 rounded px-2 py-0.5";
+
+export default function PatientCard() {
   const patient = useDentalStore((s) => s.record.patient);
-  const teeth = useDentalStore((s) => s.record.teeth);
-  const age = calcAge(patient.birthDate);
-  const counts = countByCondition(teeth);
+  const clinics = useDentalStore((s) => s.clinics);
+  const updatePatient = useDentalStore((s) => s.updatePatient);
+  const addClinic = useDentalStore((s) => s.addClinic);
+  const deleteClinic = useDentalStore((s) => s.deleteClinic);
 
-  const topConditions = Object.entries(counts)
-    .filter(([cond]) => cond !== "healthy")
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 4);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<PatientData>(patient);
+  const [newClinic, setNewClinic] = useState("");
+
+  function startEdit() { setDraft(patient); setEditing(true); }
+  function save() { updatePatient(draft); setEditing(false); }
+  function cancel() { setEditing(false); }
+
+  function setField<K extends keyof PatientData>(key: K, value: PatientData[K]) {
+    setDraft((p) => ({ ...p, [key]: value }));
+  }
+
+  function setChartNumber(clinic: string, value: string) {
+    setDraft((p) => ({
+      ...p,
+      chartNumbers: { ...p.chartNumbers, [clinic]: value },
+    }));
+  }
+
+  function handleAddClinic() {
+    const name = newClinic.trim();
+    if (!name) return;
+    addClinic(name);
+    setField("clinic", name);
+    setNewClinic("");
+  }
+
+  // Current chart number to display
+  const displayChartNum = (data: PatientData) =>
+    data.clinic ? (data.chartNumbers[data.clinic] ?? "") : "";
+
+  const d = editing ? draft : patient;
 
   return (
-    <div className="panel p-4 space-y-4">
-      {/* Patient header */}
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full bg-clinical-100 flex items-center justify-center flex-shrink-0">
-          <User className="w-6 h-6 text-clinical-600" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-slate-800">{patient.name}</h2>
-          <p className="text-xs text-slate-500">
-            {patient.gender === "female" ? "여성" : patient.gender === "male" ? "남성" : "기타"} ·{" "}
-            {age}세 ({patient.birthDate})
-          </p>
-          <p className="text-xs font-mono text-clinical-600 mt-0.5">
-            Chart #{patient.chartNumber}
-          </p>
-        </div>
+    <div className="bg-white rounded-lg border border-gray-200 p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-gray-800">Patient</h2>
+        {editing ? (
+          <div className="flex gap-2">
+            <button onClick={save} className="text-xs text-blue-500 hover:underline">Save</button>
+            <button onClick={cancel} className="text-xs text-gray-400 hover:underline">Cancel</button>
+          </div>
+        ) : (
+          <button onClick={startEdit} className="text-xs text-blue-500 hover:underline">Edit</button>
+        )}
       </div>
 
-      {/* Contact info */}
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Phone className="w-3 h-3 text-slate-400" />
-          {patient.phone}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Mail className="w-3 h-3 text-slate-400" />
-          {patient.email}
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Calendar className="w-3 h-3 text-slate-400" />
-          <span>최근 내원: {fmtDate(patient.lastVisit)}</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Calendar className="w-3 h-3 text-clinical-500" />
-          <span>다음 예약: {fmtDate(patient.nextAppointment)}</span>
-        </div>
-      </div>
+      {/* Table — identical structure in both modes */}
+      <table className="w-full text-sm">
+        <tbody>
+          <Row label="Name">
+            {editing
+              ? <input value={draft.name} onChange={(e) => setField("name", e.target.value)} className={FIELD_CLS} />
+              : <span>{d.name || "—"}</span>}
+          </Row>
 
-      {/* Medical alerts */}
-      {(patient.medicalHistory.length > 0 || patient.allergies.length > 0) && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1.5">
-          <div className="flex items-center gap-1.5">
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-            <span className="text-xs font-semibold text-amber-700">Medical Alerts</span>
-          </div>
-          {patient.allergies.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              <span className="text-[10px] text-amber-600 font-medium">알레르기:</span>
-              {patient.allergies.map((a) => (
-                <Badge key={a} variant="warning">{a}</Badge>
-              ))}
-            </div>
-          )}
-          {patient.medicalHistory.map((h) => (
-            <p key={h} className="text-[10px] text-amber-700 leading-tight">· {h}</p>
-          ))}
-        </div>
-      )}
+          <Row label="Birth">
+            {editing
+              ? <input type="date" value={draft.birthDate} onChange={(e) => setField("birthDate", e.target.value)} className={FIELD_CLS} />
+              : <span>{d.birthDate || "—"}</span>}
+          </Row>
 
-      {/* Medications */}
-      {patient.medications.length > 0 && (
-        <div className="space-y-1">
-          <div className="flex items-center gap-1.5">
-            <Pill className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-xs font-medium text-slate-600">복용 약물</span>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {patient.medications.map((m) => (
-              <Badge key={m} variant="info">{m}</Badge>
-            ))}
-          </div>
-        </div>
-      )}
+          <Row label="Gender">
+            {editing
+              ? (
+                <select value={draft.gender} onChange={(e) => setField("gender", e.target.value as PatientData["gender"])} className={FIELD_CLS}>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              )
+              : <span className="capitalize">{d.gender}</span>}
+          </Row>
 
-      {/* Chart summary */}
-      {topConditions.length > 0 && (
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5">
-            <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-xs font-medium text-slate-600">차트 요약</span>
-          </div>
-          <div className="grid grid-cols-2 gap-1">
-            {topConditions.map(([cond, count]) => {
-              const meta = CONDITION_META[cond as keyof typeof CONDITION_META];
-              if (!meta) return null;
-              return (
-                <div
-                  key={cond}
-                  className={`flex items-center justify-between px-2 py-1 rounded-md ${meta.color} border ${meta.borderColor}`}
-                >
-                  <span className={`text-[10px] font-medium ${meta.textColor}`}>
-                    {meta.shortLabel}
-                  </span>
-                  <span className={`text-[10px] font-bold ${meta.textColor}`}>
-                    {count}치
-                  </span>
+          <Row label="Phone">
+            {editing
+              ? <input value={draft.phone} onChange={(e) => setField("phone", e.target.value)} className={FIELD_CLS} />
+              : <span>{d.phone || "—"}</span>}
+          </Row>
+
+          <Row label="Clinic">
+            {editing
+              ? (
+                <div className="space-y-1">
+                  <select value={draft.clinic} onChange={(e) => setField("clinic", e.target.value)} className={FIELD_CLS}>
+                    <option value="">—</option>
+                    {clinics.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <div className="flex gap-1">
+                    <input
+                      value={newClinic}
+                      onChange={(e) => setNewClinic(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleAddClinic()}
+                      placeholder="+ new clinic"
+                      className="flex-1 text-xs border border-dashed border-gray-300 rounded px-2 py-0.5 placeholder-gray-300"
+                    />
+                    <button onClick={handleAddClinic} className="text-xs text-blue-500 px-1 shrink-0">Add</button>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
+              )
+              : <span>{d.clinic || "—"}</span>}
+          </Row>
+
+          <Row label="Chart #">
+            {editing
+              ? (
+                <input
+                  value={displayChartNum(draft)}
+                  onChange={(e) => draft.clinic && setChartNumber(draft.clinic, e.target.value)}
+                  disabled={!draft.clinic}
+                  placeholder={draft.clinic ? "" : "클리닉 먼저 선택"}
+                  className={FIELD_CLS + " disabled:bg-gray-50 disabled:text-gray-400 disabled:placeholder-gray-300"}
+                />
+              )
+              : <span>{displayChartNum(patient) || "—"}</span>}
+          </Row>
+        </tbody>
+      </table>
+
+      {/* Registered clinics list */}
+      {clinics.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          <p className="text-xs text-gray-400 mb-1">등록 클리닉</p>
+          <ul className="space-y-0.5">
+            {clinics.map((c) => (
+              <li key={c} className="flex items-center justify-between text-xs text-gray-600">
+                <span>{c}</span>
+                <button onClick={() => deleteClinic(c)} className="text-red-300 hover:text-red-500 ml-2">✕</button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
-
-      {/* Provider */}
-      <div className="pt-2 border-t border-slate-100 text-xs text-slate-500 flex justify-between">
-        <span>담당: {patient.provider}</span>
-        <span className="text-clinical-500 font-medium">편집</span>
-      </div>
     </div>
+  );
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <tr className="border-t border-gray-50 first:border-0">
+      <td className="py-1.5 pr-3 text-xs text-gray-400 whitespace-nowrap align-top w-14">{label}</td>
+      <td className="py-1.5 text-gray-800 align-top">{children}</td>
+    </tr>
   );
 }

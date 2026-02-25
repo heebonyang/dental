@@ -1,59 +1,35 @@
 "use client";
-import { Header } from "@/components/layout/Header";
-import { JsonViewer } from "@/components/layout/JsonViewer";
-import { PatientCard } from "@/components/patient/PatientCard";
-import { ToothDiagram } from "@/components/dental-chart/ToothDiagram";
-import { ChartLegend } from "@/components/dental-chart/ChartLegend";
-import { ToothDetailPanel } from "@/components/tooth-detail/ToothDetailPanel";
-import { ClinicalNotes } from "@/components/notes/ClinicalNotes";
-import { AIAnalysisSlot } from "@/components/ai/AIAnalysisSlot";
-import { useDentalStore } from "@/lib/dentalStore";
+import Header from "@/components/layout/Header";
+import PatientCard from "@/components/patient/PatientCard";
+import ToothDiagram from "@/components/dental-chart/ToothDiagram";
+import ChartLegend from "@/components/dental-chart/ChartLegend";
+import ToothDetailPanel from "@/components/tooth-detail/ToothDetailPanel";
+import ClinicalNotes from "@/components/notes/ClinicalNotes";
+import AIAnalysisSlot from "@/components/ai/AIAnalysisSlot";
 
-export default function DentalChartPage() {
-  const activeTool = useDentalStore((s) => s.ui.activeTool);
-  const setActiveTool = useDentalStore((s) => s.setActiveTool);
-
+export default function Home() {
   return (
-    <div className="flex flex-col h-screen bg-slate-100">
-      {/* Top navigation bar */}
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-
-      {/* Main 3-column layout */}
-      <div className="flex flex-1 overflow-hidden gap-3 p-3">
-
-        {/* ── LEFT PANEL (Patient + Chart + Legend) ──────── */}
-        <aside className="flex flex-col gap-3 w-72 flex-shrink-0 overflow-y-auto scrollbar-thin">
-          {/* Patient card */}
+      <div className="flex flex-1 gap-4 p-4">
+        {/* Left: Patient */}
+        <aside className="w-64 shrink-0">
           <PatientCard />
-
-          {/* Tool palette / legend */}
-          <ChartLegend
-            activeTool={activeTool}
-            onSelectTool={setActiveTool}
-          />
         </aside>
 
-        {/* ── CENTER PANEL (Tooth Diagram + Detail + Notes) */}
-        <main className="flex flex-col gap-3 flex-1 min-w-0 overflow-y-auto scrollbar-thin">
-          {/* 32-tooth interactive diagram */}
+        {/* Center: Chart + Detail + Notes */}
+        <main className="flex flex-col flex-1 gap-4 min-w-0">
+          <ChartLegend />
           <ToothDiagram />
-
-          {/* Tooth detail panel (shows when tooth is selected) */}
           <ToothDetailPanel />
-
-          {/* Clinical notes */}
           <ClinicalNotes />
         </main>
 
-        {/* ── RIGHT PANEL (AI Analysis Slot) ──────────── */}
-        <aside className="w-80 flex-shrink-0 overflow-y-auto scrollbar-thin">
+        {/* Right: AI */}
+        <aside className="w-72 shrink-0">
           <AIAnalysisSlot />
         </aside>
-
       </div>
-
-      {/* JSON viewer overlay */}
-      <JsonViewer />
     </div>
   );
 }
