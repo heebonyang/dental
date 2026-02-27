@@ -21,8 +21,9 @@ export default function ToothDiagram() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-2">
-      <div className="flex justify-center gap-1">
+    <div className="bg-white rounded-lg border border-gray-200 px-3 py-2 overflow-x-auto">
+      {/* 상악 */}
+      <div className="flex justify-center gap-0">
         {UPPER_ARCH_ORDER.map((id) => (
           <ToothCell
             key={id}
@@ -32,8 +33,12 @@ export default function ToothDiagram() {
           />
         ))}
       </div>
-      <div className="border-t border-dashed border-gray-200" />
-      <div className="flex justify-center gap-1">
+
+      {/* 중앙 교합선 */}
+      <div className="border-t-2 border-dashed border-gray-300 my-0" />
+
+      {/* 하악 */}
+      <div className="flex justify-center gap-0">
         {LOWER_ARCH_ORDER.map((id) => (
           <ToothCell
             key={id}
