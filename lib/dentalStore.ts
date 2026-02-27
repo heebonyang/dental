@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { v4 as uuid } from "uuid";
-import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool, PanelId, PanelTheme } from "./types";
+import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool, PanelId, PanelTheme, AppView } from "./types";
 import { buildTeethRecord } from "./utils";
 
 export function newRecord(): DentalRecord {
@@ -18,6 +18,7 @@ interface StoreState {
   selectedTooth: number | null;
   activeTool: ConditionTool;
   viewMode: ViewMode;
+  appView: AppView;
   // Data (persisted)
   records: DentalRecord[];
   activeRecordId: string;
@@ -31,6 +32,7 @@ interface StoreState {
   selectTooth: (id: number | null) => void;
   setActiveTool: (tool: ConditionTool) => void;
   setViewMode: (mode: ViewMode) => void;
+  setAppView: (v: AppView) => void;
   setToothStatus: (toothId: number, condition: ToothCondition) => void;
   updateToothNote: (toothId: number, note: string) => void;
   updatePatient: (patch: Partial<PatientData>) => void;
@@ -66,6 +68,7 @@ export const useDentalStore = create<StoreState>()(
         selectedTooth: null,
         activeTool: "select",
         viewMode: "chart",
+        appView: "chart",
         records: [initialRecord],
         activeRecordId: initialRecord.patient.id,
         clinics: [],
@@ -92,6 +95,7 @@ export const useDentalStore = create<StoreState>()(
         selectTooth: (id) => set({ selectedTooth: id }),
         setActiveTool: (tool) => set({ activeTool: tool }),
         setViewMode: (mode) => set({ viewMode: mode }),
+        setAppView: (v) => set({ appView: v }),
 
         setToothStatus: (toothId, condition) =>
           set((s) =>
