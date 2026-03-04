@@ -39,6 +39,30 @@ export const TOOTH_DEFINITIONS: StaticToothDef[] = [
   { id: 30, fdi: "46", name: "하악 우측 제1대구치",    quadrant: 4, arch: "lower", side: "right", type: "molar"    },
   { id: 31, fdi: "47", name: "하악 우측 제2대구치",    quadrant: 4, arch: "lower", side: "right", type: "molar"    },
   { id: 32, fdi: "48", name: "하악 우측 사랑니",       quadrant: 4, arch: "lower", side: "right", type: "molar"    },
+  // 5사분면: 상악 우측 유치
+  { id: 33, fdi: "55", name: "상악 우측 유치 제2유구치", quadrant: 5, arch: "upper", side: "right", type: "molar"   },
+  { id: 34, fdi: "54", name: "상악 우측 유치 제1유구치", quadrant: 5, arch: "upper", side: "right", type: "molar"   },
+  { id: 35, fdi: "53", name: "상악 우측 유치 견치",      quadrant: 5, arch: "upper", side: "right", type: "canine"  },
+  { id: 36, fdi: "52", name: "상악 우측 유치 측절치",    quadrant: 5, arch: "upper", side: "right", type: "incisor" },
+  { id: 37, fdi: "51", name: "상악 우측 유치 중절치",    quadrant: 5, arch: "upper", side: "right", type: "incisor" },
+  // 6사분면: 상악 좌측 유치
+  { id: 38, fdi: "61", name: "상악 좌측 유치 중절치",    quadrant: 6, arch: "upper", side: "left",  type: "incisor" },
+  { id: 39, fdi: "62", name: "상악 좌측 유치 측절치",    quadrant: 6, arch: "upper", side: "left",  type: "incisor" },
+  { id: 40, fdi: "63", name: "상악 좌측 유치 견치",      quadrant: 6, arch: "upper", side: "left",  type: "canine"  },
+  { id: 41, fdi: "64", name: "상악 좌측 유치 제1유구치", quadrant: 6, arch: "upper", side: "left",  type: "molar"   },
+  { id: 42, fdi: "65", name: "상악 좌측 유치 제2유구치", quadrant: 6, arch: "upper", side: "left",  type: "molar"   },
+  // 7사분면: 하악 좌측 유치
+  { id: 43, fdi: "75", name: "하악 좌측 유치 제2유구치", quadrant: 7, arch: "lower", side: "left",  type: "molar"   },
+  { id: 44, fdi: "74", name: "하악 좌측 유치 제1유구치", quadrant: 7, arch: "lower", side: "left",  type: "molar"   },
+  { id: 45, fdi: "73", name: "하악 좌측 유치 견치",      quadrant: 7, arch: "lower", side: "left",  type: "canine"  },
+  { id: 46, fdi: "72", name: "하악 좌측 유치 측절치",    quadrant: 7, arch: "lower", side: "left",  type: "incisor" },
+  { id: 47, fdi: "71", name: "하악 좌측 유치 중절치",    quadrant: 7, arch: "lower", side: "left",  type: "incisor" },
+  // 8사분면: 하악 우측 유치
+  { id: 48, fdi: "81", name: "하악 우측 유치 중절치",    quadrant: 8, arch: "lower", side: "right", type: "incisor" },
+  { id: 49, fdi: "82", name: "하악 우측 유치 측절치",    quadrant: 8, arch: "lower", side: "right", type: "incisor" },
+  { id: 50, fdi: "83", name: "하악 우측 유치 견치",      quadrant: 8, arch: "lower", side: "right", type: "canine"  },
+  { id: 51, fdi: "84", name: "하악 우측 유치 제1유구치", quadrant: 8, arch: "lower", side: "right", type: "molar"   },
+  { id: 52, fdi: "85", name: "하악 우측 유치 제2유구치", quadrant: 8, arch: "lower", side: "right", type: "molar"   },
 ];
 
 export const CONDITION_META: Record<ToothCondition, ConditionMeta> = {
@@ -72,6 +96,9 @@ export const CONDITION_META: Record<ToothCondition, ConditionMeta> = {
 
 export const UPPER_ARCH_ORDER: UniversalNumber[] = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
 export const LOWER_ARCH_ORDER: UniversalNumber[] = [32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,17];
+// 유치 (deciduous) — 영구치 3칸 안쪽부터 5칸씩
+export const UPPER_DECIDUOUS_ORDER: UniversalNumber[] = [33,34,35,36,37,38,39,40,41,42];
+export const LOWER_DECIDUOUS_ORDER: UniversalNumber[] = [52,51,50,49,48,47,46,45,44,43];
 
 export const CONDITION_PALETTE: ConditionTool[] = [
   "select",

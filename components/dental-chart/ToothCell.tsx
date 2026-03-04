@@ -7,6 +7,7 @@ interface Props {
   tooth: ToothData;
   isSelected: boolean;
   onClick: () => void;
+  isPrimary?: boolean;
 }
 
 // 상태별 단축 레이블 (healthy 제외)
@@ -38,10 +39,12 @@ const STATUS_BADGE: Partial<Record<ToothCondition, string>> = {
   watch:                 "관찰",
 };
 
-export default function ToothCell({ tooth, isSelected, onClick }: Props) {
+export default function ToothCell({ tooth, isSelected, onClick, isPrimary }: Props) {
   const meta = CONDITION_META[tooth.status];
   const badge = STATUS_BADGE[tooth.status];
   const isUpper = tooth.arch === "upper";
+  // 유치는 살짝 작게 (높이만 줄임, 너비는 동일하게 유지해 열 정렬)
+  const svgH = isPrimary ? 42 : 54;
 
   return (
     <button
@@ -51,12 +54,17 @@ export default function ToothCell({ tooth, isSelected, onClick }: Props) {
         "flex flex-col items-center gap-[2px] px-[2px] py-1 rounded transition-all focus:outline-none",
         isSelected
           ? "ring-2 ring-blue-500 bg-blue-50/80"
+          : isPrimary
+          ? "hover:bg-violet-50"
           : "hover:bg-gray-100"
       )}
     >
       {/* 상악: FDI 번호 위 */}
       {isUpper && (
-        <span className="text-[8px] leading-none text-gray-400 font-medium tracking-tight">
+        <span className={cn(
+          "text-[8px] leading-none font-medium tracking-tight",
+          isPrimary ? "text-violet-400" : "text-gray-400"
+        )}>
           {tooth.fdi}
         </span>
       )}
@@ -66,6 +74,8 @@ export default function ToothCell({ tooth, isSelected, onClick }: Props) {
         toothType={tooth.type}
         arch={tooth.arch}
         status={tooth.status}
+        width={36}
+        height={svgH}
       />
 
       {/* 상태 뱃지 */}
@@ -83,7 +93,10 @@ export default function ToothCell({ tooth, isSelected, onClick }: Props) {
 
       {/* 하악: FDI 번호 아래 */}
       {!isUpper && (
-        <span className="text-[8px] leading-none text-gray-400 font-medium tracking-tight">
+        <span className={cn(
+          "text-[8px] leading-none font-medium tracking-tight",
+          isPrimary ? "text-violet-400" : "text-gray-400"
+        )}>
           {tooth.fdi}
         </span>
       )}

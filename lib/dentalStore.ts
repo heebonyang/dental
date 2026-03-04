@@ -156,7 +156,7 @@ export const useDentalStore = create<StoreState>()(
       }),
       {
         name: "dental-record",
-        version: 4,
+        version: 5,
         partialize: (s) => ({ records: s.records, activeRecordId: s.activeRecordId, clinics: s.clinics, panelThemes: s.panelThemes }),
         migrate: (persisted: unknown, version: number) => {
           const data = persisted as Record<string, unknown>;
@@ -192,6 +192,20 @@ export const useDentalStore = create<StoreState>()(
             }
             if (!data.panelThemes) {
               data.panelThemes = { explorer: "dark", chart: "light", command: "dark", ai: "dark" };
+            }
+          }
+          if (version < 5) {
+            // 유치(ID 33-52) 추가
+            const defaultTeeth = buildTeethRecord();
+            const recs = data.records as DentalRecord[] | undefined;
+            if (recs) {
+              recs.forEach((r) => {
+                for (let id = 33; id <= 52; id++) {
+                  if (!r.teeth[id] && defaultTeeth[id]) {
+                    r.teeth[id] = defaultTeeth[id];
+                  }
+                }
+              });
             }
           }
           return data;

@@ -32,7 +32,7 @@ export type ToothCondition =
 export type ToothType = "molar" | "premolar" | "canine" | "incisor";
 export type ArchPosition = "upper" | "lower";
 export type QuadrantSide = "right" | "left";
-export type Quadrant = 1 | 2 | 3 | 4;
+export type Quadrant = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export interface ToothData {
   id: UniversalNumber;
