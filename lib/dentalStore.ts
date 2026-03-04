@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, subscribeWithSelector } from "zustand/middleware";
 import { v4 as uuid } from "uuid";
-import type { ToothCondition, PatientData, DentalRecord, ViewMode, ConditionTool, PanelId, PanelTheme, AppView } from "./types";
+import type { ToothCondition, PatientData, DentalRecord, ConditionTool, PanelId, PanelTheme, AppView } from "./types";
 import { buildTeethRecord } from "./utils";
 
 export function newRecord(): DentalRecord {
@@ -17,7 +17,6 @@ interface StoreState {
   // UI (not persisted)
   selectedTooth: number | null;
   activeTool: ConditionTool;
-  viewMode: ViewMode;
   appView: AppView;
   // Data (persisted)
   records: DentalRecord[];
@@ -31,7 +30,6 @@ interface StoreState {
   // Chart actions
   selectTooth: (id: number | null) => void;
   setActiveTool: (tool: ConditionTool) => void;
-  setViewMode: (mode: ViewMode) => void;
   setAppView: (v: AppView) => void;
   setToothStatus: (toothId: number, condition: ToothCondition) => void;
   updateToothNote: (toothId: number, note: string) => void;
@@ -67,7 +65,6 @@ export const useDentalStore = create<StoreState>()(
       (set) => ({
         selectedTooth: null,
         activeTool: "select",
-        viewMode: "chart",
         appView: "chart",
         records: [initialRecord],
         activeRecordId: initialRecord.patient.id,
@@ -94,7 +91,6 @@ export const useDentalStore = create<StoreState>()(
 
         selectTooth: (id) => set({ selectedTooth: id }),
         setActiveTool: (tool) => set({ activeTool: tool }),
-        setViewMode: (mode) => set({ viewMode: mode }),
         setAppView: (v) => set({ appView: v }),
 
         setToothStatus: (toothId, condition) =>
@@ -128,8 +124,6 @@ export const useDentalStore = create<StoreState>()(
                   id: uuid(),
                   date: new Date().toISOString(),
                   content,
-                  author: "",
-                  linkedToothIds: s.selectedTooth ? [s.selectedTooth] : [],
                 },
               ],
             }))

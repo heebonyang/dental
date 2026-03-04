@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useDentalStore, useActiveRecord } from "@/lib/dentalStore";
 import { usePanelTheme } from "@/lib/hooks/usePanelTheme";
-import { TOOTH_DEFINITIONS } from "@/lib/constants";
+import { TOOTH_DEFINITIONS, CONDITION_META } from "@/lib/constants";
 import type { ToothCondition } from "@/lib/types";
 
 /**
@@ -21,6 +21,7 @@ export default function CommandCenter() {
   const { isDark, toggle } = usePanelTheme("command");
 
   const [commandInput, setCommandInput] = useState("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,14 +32,29 @@ export default function CommandCenter() {
     const text = commandInput.trim();
     if (!text) return;
 
+    setErrorMsg(null);
+
     if (text.startsWith("/")) {
       const [cmd, ...args] = text.slice(1).split(" ");
       if (cmd === "select" && args[0]) {
         const tooth = TOOTH_DEFINITIONS.find((t) => t.fdi === args[0]);
-        if (tooth) selectTooth(tooth.id);
+        if (tooth) {
+          selectTooth(tooth.id);
+        } else {
+          setErrorMsg(`FDI '${args[0]}'를 찾을 수 없습니다.`);
+        }
       } else if (cmd === "set" && args[0] && args[1]) {
         const tooth = TOOTH_DEFINITIONS.find((t) => t.fdi === args[0]);
-        if (tooth) setToothStatus(tooth.id, args[1] as ToothCondition);
+        if (!tooth) {
+          setErrorMsg(`FDI '${args[0]}'를 찾을 수 없습니다.`);
+        } else if (!(args[1] in CONDITION_META)) {
+          const validKeys = Object.keys(CONDITION_META).join(", ");
+          setErrorMsg(`'${args[1]}'은(는) 유효하지 않은 상태입니다. 사용 가능: ${validKeys}`);
+        } else {
+          setToothStatus(tooth.id, args[1] as ToothCondition);
+        }
+      } else {
+        setErrorMsg(`알 수 없는 명령어: /${cmd}`);
       }
     } else {
       addNote(text);
@@ -96,12 +112,19 @@ export default function CommandCenter() {
         <div ref={bottomRef} />
       </div>
 
+      {/* 에러 메시지 */}
+      {errorMsg && (
+        <div className={`px-4 py-1 text-xs font-mono text-red-500 border-t ${isDark ? "border-gray-800 bg-gray-950" : "border-gray-200 bg-red-50"}`}>
+          ✕ {errorMsg}
+        </div>
+      )}
+
       {/* 입력창 */}
       <div className={`border-t px-4 py-2 flex items-center gap-2 shrink-0 ${isDark ? "border-gray-800" : "border-gray-200"}`}>
         <span className={`font-mono text-sm shrink-0 ${isDark ? "text-green-500" : "text-gray-500"}`}>›</span>
         <input
           value={commandInput}
-          onChange={(e) => setCommandInput(e.target.value)}
+          onChange={(e) => { setCommandInput(e.target.value); setErrorMsg(null); }}
           onKeyDown={(e) => e.key === "Enter" && handleCommandSubmit()}
           placeholder="진료 기록 또는 명령어 입력..."
           className={`flex-1 bg-transparent outline-none text-xs font-mono ${

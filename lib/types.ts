@@ -61,8 +61,6 @@ export interface ClinicalNote {
   id: string;
   date: string;
   content: string;
-  author: string;
-  linkedToothIds: number[];
 }
 
 export interface DentalRecord {
@@ -72,7 +70,6 @@ export interface DentalRecord {
   updatedAt: string;
 }
 
-export type ViewMode = "chart" | "perio" | "history";
 export type ConditionTool = ToothCondition | "select" | "eraser";
 
 export type PanelId = "explorer" | "chart" | "command" | "ai";

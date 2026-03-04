@@ -1,4 +1,3 @@
-"use client";
 import type { ToothType, ArchPosition, ToothCondition } from "@/lib/types";
 
 // ─── ViewBox: 0 0 36 54 ─────────────────────────────────────────────────────
@@ -163,12 +162,12 @@ function CrackOverlay({ geo, isUpper }: { geo: Geo; isUpper: boolean }) {
 }
 
 // ─── Missing / Extraction ─────────────────────────────────────────────────────
-function MissingTooth({ status }: { status: ToothCondition }) {
+function MissingTooth({ status, width, height }: { status: ToothCondition; width: number; height: number }) {
   const isExtraction = status === "extraction_indicated";
   const stroke = isExtraction ? "#ef4444" : "#9ca3af";
   const dash = isExtraction ? undefined : "3,2";
   return (
-    <svg viewBox="0 0 36 54" width="36" height="54" className="block">
+    <svg viewBox="0 0 36 54" width={width} height={height} className="block">
       <rect
         x="5"
         y="5"
@@ -190,21 +189,24 @@ function MissingTooth({ status }: { status: ToothCondition }) {
 function ImplantTooth({
   status,
   arch,
+  width,
+  height,
 }: {
   status: ToothCondition;
   arch: ArchPosition;
+  width: number;
+  height: number;
 }) {
   const isUpper = arch === "upper";
   const hasCrown = status === "implant_crown";
   const threadY = isUpper ? [4, 8, 12, 16, 20] : [32, 36, 40, 44, 48];
   const fixtureY = isUpper ? 2 : 30;
-  const abutTopY = isUpper ? 24 : 26;
   const crownPath = isUpper
     ? "M 7,28 Q 6,28 6,29 L 6,51 Q 6,53 8,53 L 28,53 Q 30,53 30,51 L 30,29 Q 30,28 29,28 Z"
     : "M 7,1 Q 6,1 6,2 L 6,26 L 30,26 L 30,2 Q 30,1 29,1 Z";
 
   return (
-    <svg viewBox="0 0 36 54" width="36" height="54" className="block">
+    <svg viewBox="0 0 36 54" width={width} height={height} className="block">
       {/* Fixture */}
       <rect
         x="15"
@@ -265,10 +267,14 @@ function NaturalTooth({
   toothType,
   arch,
   status,
+  width,
+  height,
 }: {
   toothType: ToothType;
   arch: ArchPosition;
   status: ToothCondition;
+  width: number;
+  height: number;
 }) {
   const isUpper = arch === "upper";
   const geo = isUpper ? UPPER_GEO[toothType] : LOWER_GEO[toothType];
@@ -278,7 +284,7 @@ function NaturalTooth({
   const rootFill = status === "root_canal" ? "#fde68a" : "#f0e8d0";
 
   return (
-    <svg viewBox="0 0 36 54" width="36" height="54" className="block">
+    <svg viewBox="0 0 36 54" width={width} height={height} className="block">
       {/* Roots */}
       {geo.roots.map((d, i) => (
         <path key={i} d={d} fill={rootFill} stroke="#c4a87a" strokeWidth="0.8" />
@@ -316,16 +322,20 @@ export default function ToothSVG({
   toothType,
   arch,
   status,
+  width = 36,
+  height = 54,
 }: {
   toothType: ToothType;
   arch: ArchPosition;
   status: ToothCondition;
+  width?: number;
+  height?: number;
 }) {
   if (status === "missing" || status === "extraction_indicated") {
-    return <MissingTooth status={status} />;
+    return <MissingTooth status={status} width={width} height={height} />;
   }
   if (status === "implant" || status === "implant_crown") {
-    return <ImplantTooth status={status} arch={arch} />;
+    return <ImplantTooth status={status} arch={arch} width={width} height={height} />;
   }
-  return <NaturalTooth toothType={toothType} arch={arch} status={status} />;
+  return <NaturalTooth toothType={toothType} arch={arch} status={status} width={width} height={height} />;
 }

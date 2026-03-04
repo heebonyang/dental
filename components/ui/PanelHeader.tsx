@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 
 interface PanelHeaderProps {
@@ -10,6 +11,8 @@ interface PanelHeaderProps {
   /** 테마 토글 버튼 왼쪽에 추가할 버튼 등 */
   children?: React.ReactNode;
   className?: string;
+  /** 제목 텍스트에 추가할 클래스 (예: font-mono 등) */
+  titleClassName?: string;
 }
 
 /**
@@ -22,6 +25,7 @@ export default function PanelHeader({
   onToggleTheme,
   children,
   className,
+  titleClassName,
 }: PanelHeaderProps) {
   return (
     <div
@@ -32,9 +36,11 @@ export default function PanelHeader({
       )}
     >
       <span
-        className={`text-xs font-semibold uppercase tracking-widest ${
-          isDark ? "text-gray-400" : "text-gray-500"
-        }`}
+        className={cn(
+          "text-xs font-semibold uppercase tracking-widest",
+          isDark ? "text-gray-400" : "text-gray-500",
+          titleClassName
+        )}
       >
         {title}
       </span>

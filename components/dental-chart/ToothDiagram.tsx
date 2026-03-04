@@ -12,11 +12,8 @@ export default function ToothDiagram() {
 
   function handleClick(id: number) {
     selectTooth(id);
-    if (activeTool !== "select" && activeTool !== "eraser") {
-      setToothStatus(id, activeTool);
-    }
-    if (activeTool === "eraser") {
-      setToothStatus(id, "healthy");
+    if (activeTool !== "select") {
+      setToothStatus(id, activeTool === "eraser" ? "healthy" : activeTool);
     }
   }
 

@@ -4,7 +4,6 @@ import { usePanelTheme } from "@/lib/hooks/usePanelTheme";
 import PanelHeader from "@/components/ui/PanelHeader";
 import PatientList from "./PatientList";
 import PatientInfoSection from "./PatientInfoSection";
-import type { PatientData } from "@/lib/types";
 
 /**
  * 좌측 패널: 환자 탐색기
@@ -52,7 +51,7 @@ export default function PatientExplorer() {
         key={activeRecord.patient.id}
         patient={activeRecord.patient}
         clinics={clinics}
-        onSave={(updated: PatientData) => updatePatient(updated)}
+        onSave={updatePatient}
         onAddClinic={addClinic}
         onDeleteClinic={deleteClinic}
       />
