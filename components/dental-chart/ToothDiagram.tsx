@@ -10,15 +10,10 @@ const DECIDUOUS_SPACER = PERM_CELL_W * 3;
 export default function ToothDiagram() {
   const record       = useActiveRecord();
   const selectedTooth = useDentalStore((s) => s.selectedTooth);
-  const activeTool   = useDentalStore((s) => s.activeTool);
   const selectTooth  = useDentalStore((s) => s.selectTooth);
-  const setToothStatus = useDentalStore((s) => s.setToothStatus);
 
   function handleClick(id: number) {
     selectTooth(id);
-    if (activeTool !== "select") {
-      setToothStatus(id, activeTool === "eraser" ? "healthy" : activeTool);
-    }
   }
 
   return (

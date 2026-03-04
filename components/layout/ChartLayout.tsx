@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { usePanelTheme } from "@/lib/hooks/usePanelTheme";
 import PatientExplorer  from "@/components/patient/PatientExplorer";
-import ChartLegend      from "@/components/dental-chart/ChartLegend";
 import ToothDiagram     from "@/components/dental-chart/ToothDiagram";
 import ToothDetailPanel from "@/components/tooth-detail/ToothDetailPanel";
 import CommandCenter    from "@/components/command/CommandCenter";
@@ -38,10 +37,13 @@ export default function ChartLayout({ isLayoutEditMode }: Props) {
       {/* ② + ③ 중앙: 차팅 + 커맨드 센터 */}
       <div className={`flex flex-col overflow-hidden flex-1 min-w-0 ${isChartDark ? "bg-gray-900" : "bg-gray-100"}`}>
         <PanelHeader title="차팅 뷰" isDark={isChartDark} onToggleTheme={toggleChartTheme} />
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-          <ChartLegend />
-          <ToothDiagram />
-          <ToothDetailPanel />
+        <div className="flex-1 overflow-auto p-4 min-h-0">
+          <div className="flex gap-3 items-start">
+            <div className="flex-1 min-w-0">
+              <ToothDiagram />
+            </div>
+            <ToothDetailPanel />
+          </div>
         </div>
         <ResizeHandle direction="vertical" isEnabled={isLayoutEditMode} onDelta={(d) => setCommandHeight((p) => Math.max(COMMAND_MIN, Math.min(COMMAND_MAX, p - d)))} />
         <div className="shrink-0" style={{ height: commandHeight }}>
